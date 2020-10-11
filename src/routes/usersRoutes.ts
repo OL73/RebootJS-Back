@@ -1,7 +1,7 @@
 import { IUser } from './../models/usersModel';
 import { Request, Response, Router } from 'express';
 import { createUser, getUser, getUsers } from '../controllers/usersController';
-import { User } from '../models/usersModel';
+import { User, validationUser } from '../models/usersModel';
 
 const router = Router();
 
@@ -34,15 +34,20 @@ router.get('/', async (req: Request, res: Response) => {
   res.send(users);
 });
 
-router.post('/', (req: Request, res: Response) => {
-  const { firstname, lastname, email } = req.body;
+router.post('/', async (req: Request, res: Response) => {
+  
+  const { error } = validationUser(req.body);
 
-  if (!firstname || !lastname || !email) {
+  if (error) return res.status(400).send(error.details[0].message);
+  
+  const { firstname, lastname, email } = req.body;
+  
+  /* if (!firstname || !lastname || !email) {
     return res.status(400).send("Please provide a firstname, lastname and email");
-  }
+  } */
 
   // Appelle le controller
-  const newUser = createUser(firstname, lastname, email);
+  const newUser = await createUser(firstname, lastname, email);
 
   res.send(newUser);
 });

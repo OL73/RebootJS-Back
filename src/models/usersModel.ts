@@ -1,4 +1,4 @@
-import { string } from "@hapi/joi";
+import Joi from "joi";
 /* // TODO transformer en Typescript
 class User {
   id: number;
@@ -48,16 +48,19 @@ export interface IUser extends Document {
 const userSchema = new Schema({
   firstname: {
     type: String,
-    required: true
+    required: true,
+    lowercase: true
   },
   lastname: {
     type: String,
-    required: true
+    required: true,
+    lowercase: true
   },
   email: {
     type: String,
     required: true,
-    unique: true
+    unique: true,
+    lowercase: true
   }
 });
 
@@ -69,3 +72,14 @@ export const User = model<IUser, Model<IUser>>('User', userSchema);
 
 /* const newUser = new User;
 newUser.status(); */
+
+export function validationUser(user: any) {
+
+  const schema = Joi.object({
+    firstname: Joi.string().min(3).max(50).required(),
+    lastname: Joi.string().min(3).max(50).required(),
+    email: Joi.string().min(3).max(50).required(),
+  });
+
+  return schema.validate(user);
+}
