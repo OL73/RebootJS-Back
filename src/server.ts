@@ -2,6 +2,9 @@ import express, { Request, Response, ErrorRequestHandler } from 'express';
 import morgan from "morgan";
 import helmet from "helmet";
 import { configuration, IConfig } from "./config";
+import { connect } from './database';
+import generalRouter from './routes/router';
+
 
 export function createExpressApp(config: IConfig): express.Express {
   const { express_debug } = config;
@@ -19,10 +22,15 @@ export function createExpressApp(config: IConfig): express.Express {
 
   app.get('/', (req: Request, res: Response) => { res.send('This is the boilerplate for Flint Messenger app') });
 
+  // redirection vers router (generalRouter)
+  app.use('/api', generalRouter);
+
   return app;
 }
 
 const config = configuration();
 const { PORT } = config;
 const app = createExpressApp(config);
-app.listen(PORT, () => console.log(`Flint messenger listening at ${PORT}`));
+connect(config).then(
+  () => app.listen(PORT, () => console.log(`Flint messenger listening at ${PORT}`))
+);
