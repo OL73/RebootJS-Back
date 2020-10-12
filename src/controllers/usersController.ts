@@ -1,8 +1,8 @@
 import { IUser, User } from "../models/usersModel";
 import { DatabaseError } from './errors/databaseErrors';
 
-function createUser(firstname: string, lastname: string, email: string): IUser | undefined {
-  const user = new User({ firstname, lastname, email });
+function createUser(firstname: string, lastname: string, email: string, password: string): IUser | undefined {
+  const user = new User({ firstname, lastname, email, password });
 
   try {
     user.save();

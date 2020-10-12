@@ -2,11 +2,12 @@ import { IUser } from './../models/usersModel';
 import { Request, Response, Router } from 'express';
 import { createUser, getUser, getUsers } from '../controllers/usersController';
 import { User, validationUser } from '../models/usersModel';
+import { authenticationRequired } from '../middlewares/authenticationRequired';
 
 const router = Router();
 
 // uri finale = /api/users/:userId, cf ligne "app.use('/users', usersRoutes);"
-router.get('/:userId', (req: Request, res: Response) => {
+router.get('/:userId', authenticationRequired, (req: Request, res: Response) => {
   const id = req.params["userId"];
 
   getUser(id, (user) => {
@@ -27,7 +28,7 @@ router.get('/:userId', (req: Request, res: Response) => {
   } */
 });
 
-router.get('/', async (req: Request, res: Response) => {
+router.get('/', authenticationRequired, async (req: Request, res: Response) => {
 
   const users = await getUsers();
 
@@ -40,21 +41,21 @@ router.post('/', async (req: Request, res: Response) => {
 
   if (error) return res.status(400).send(error.details[0].message);
   
-  const { firstname, lastname, email } = req.body;
+  const { firstname, lastname, email, password } = req.body;
   
   /* if (!firstname || !lastname || !email) {
     return res.status(400).send("Please provide a firstname, lastname and email");
   } */
 
   // Appelle le controller
-  const newUser = await createUser(firstname, lastname, email);
+  const newUser = await createUser(firstname, lastname, email, password);
 
   res.send(newUser);
 });
 
 router.patch('/:userId', async (req: Request, res: Response) => {
 
-  const { firstname, lastname, email } = req.body;
+  const { firstname, lastname, email, password } = req.body;
 
   const user = await User.findById(req.params.userId);
   console.log(user);
@@ -65,7 +66,8 @@ router.patch('/:userId', async (req: Request, res: Response) => {
     $set: {
       firstname: firstname || user.firstname,
       lastname: lastname || user.lastname,
-      email: email || user.email
+      email: email || user.email,
+      //password: password || user.password,
     }
   }, { new: true });
 

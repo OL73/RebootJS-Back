@@ -1,4 +1,3 @@
-import Joi from "joi";
 /* // TODO transformer en Typescript
 class User {
   id: number;
@@ -37,12 +36,16 @@ export { User, existingUsers } */
 
 // création du moule User avec Mongoose
 import { Document, Schema, Model, model } from "mongoose";
+import Joi from "joi";
+import { SHA256 } from 'crypto-js';
 
 export interface IUser extends Document {
   firstname: string;
   lastname: string;
   email: string;
   /* status: () => string; */
+  verifyPassword: (passport: string) => boolean;
+  setPassword: (password: string) => void;
 }
 
 const userSchema = new Schema({
@@ -61,12 +64,24 @@ const userSchema = new Schema({
     required: true,
     unique: true,
     lowercase: true
+  },
+  password: {
+    type: String,
+    required: true
   }
 });
 
 /* userSchema.methods.status = function () {
   return `${this.firstname} ${this.lastname}`;
 } */
+
+userSchema.methods.verifyPassword = function (password: string) {
+  return this.password === SHA256(password).toString();
+}
+
+userSchema.methods.setPassword = function (password: string) {
+  this.password = SHA256(password).toString();
+}
 
 export const User = model<IUser, Model<IUser>>('User', userSchema);
 
@@ -79,6 +94,7 @@ export function validationUser(user: any) {
     firstname: Joi.string().min(3).max(50).required(),
     lastname: Joi.string().min(3).max(50).required(),
     email: Joi.string().min(3).max(50).required(),
+    password: Joi.string().min(3).max(50).required(),
   });
 
   return schema.validate(user);

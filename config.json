@@ -1,6 +1,8 @@
 {
   "PORT": 3000,
   "express_debug": true,
+  "session_cookie_name": "flint_messenger_cookie",
+  "session_secret": "monSuperSecret",
   "mongo_host": "cluster0.yc5l4.mongodb.net",
   "mongo_user": "olivier_lambin",
   "mongo_pass": "password",
