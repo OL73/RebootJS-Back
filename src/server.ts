@@ -7,11 +7,12 @@ import { connect } from './database';
 import generalRouter from './routes/router';
 import session from 'express-session';
 import mongoose from 'mongoose';
-import { MongoStore } from 'connect-mongo';
+import connect_mongo from 'connect-mongo';
+const MongoStore = connect_mongo(session);
 
 
 export function createExpressApp(config: IConfig): express.Express {
-  const { express_debug, session_cookie_name, session_secret} = config;
+  const { express_debug, session_cookie_name, session_secret } = config;
 
   const app = express();
 
@@ -19,12 +20,21 @@ export function createExpressApp(config: IConfig): express.Express {
   app.use(helmet());
   app.use(express.json());
 
+  // cors
+  //app.use(express.urlencoded({ extended: true }));
+  app.use(function (req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+  });
+
   // session
   app.use(session({
     name: session_cookie_name,
     secret: session_secret,
     store: new MongoStore({ mongooseConnection: mongoose.connection }),
-    saveUninitialized: false
+    saveUninitialized: false,
+    resave: false
   }));
 
   // on fait le lien entre passport(authentification) et la session

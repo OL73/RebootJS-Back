@@ -4,20 +4,23 @@ import { UserNotFoundError } from '../controllers/errors/userNotFoundError';
 
 const router = Router();
 
-router.post('/', (req: Request, res: Response) => {
-    const authenticationFunction = passport.authenticate('local', (err, user) => {
+router.post('/', (req: Request, res: Response) => {                                 // on rentre dans Stategy.use
+    const authenticationFunction = passport.authenticate('local', (err, user) => { // 'local' = propre authentification, pas via FB, google ou autre
         if (err) {
             if (err instanceof UserNotFoundError) return res.status(404).send('User not found');
 
             return res.status(500).send();
         }
 
-        if (user) {
+        if (user) { // enregistrement des infos dans la session
             req.logIn(user, err => {
                 if (err) return res.status(500).send();
-                return res.send(user);
-            })
+                return res.send(user); // renvoie un cookie (set-cookie) dans le header
+            });
+        } else {
+            return res.status(404).send('User not found');
         }
+
     }); // renvoie une fonction qui prend en paramètre req et res
 
     authenticationFunction(req, res);

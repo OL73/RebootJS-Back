@@ -2,10 +2,14 @@ import { IUser, User } from "../models/usersModel";
 import { DatabaseError } from './errors/databaseErrors';
 
 function createUser(firstname: string, lastname: string, email: string, password: string): IUser | undefined {
-  const user = new User({ firstname, lastname, email, password });
 
   try {
+    const user = new User({ firstname, lastname, email, password });
+
+    user.setPassword(password);
+
     user.save();
+
     return user;
 
   } catch (ex) {
@@ -20,7 +24,7 @@ function getUser(id: string, callback: (user: IUser | null) => void): void {
 
     callback(res);
   });
-  
+
 }
 
 function getUsers(): any {
@@ -30,7 +34,7 @@ function getUsers(): any {
     return User.find();
 
   } catch (ex) {
-    console.log(ex);    
+    console.log(ex);
   }
 
 }

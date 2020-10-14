@@ -46,7 +46,11 @@ export interface IUser extends Document {
   /* status: () => string; */
   verifyPassword: (passport: string) => boolean;
   setPassword: (password: string) => void;
+  getSafeUser: () => ISafeUser; // retourne un type de ISafeUser
 }
+
+// pour récupérer un sous-ensemble de IUser (récupère des infos qui nous intéressent)
+type ISafeUser = Pick<IUser, "firstname" | "lastname" | "email" | "_id">
 
 const userSchema = new Schema({
   firstname: {
@@ -81,6 +85,11 @@ userSchema.methods.verifyPassword = function (password: string) {
 
 userSchema.methods.setPassword = function (password: string) {
   this.password = SHA256(password).toString();
+}
+
+userSchema.methods.getSafeUser = function () {
+  const { _id, firstname, lastname, email} = this;
+  return {_id, firstname, lastname, email};
 }
 
 export const User = model<IUser, Model<IUser>>('User', userSchema);

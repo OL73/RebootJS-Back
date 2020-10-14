@@ -6,14 +6,20 @@ import { authenticationRequired } from '../middlewares/authenticationRequired';
 
 const router = Router();
 
+router.get('/me', authenticationRequired, (req, res) => {
+  return res.send((req.user as IUser).getSafeUser());
+})
+
 // uri finale = /api/users/:userId, cf ligne "app.use('/users', usersRoutes);"
-router.get('/:userId', authenticationRequired, (req: Request, res: Response) => {
+router.get('/:userId', (req: Request, res: Response) => {
+  // /!\ ATTENTION avec passepport et le middleware authenticationRequired, permet de récupérer les infos de l'utilisateur connecté (req.params.user)
+
   const id = req.params["userId"];
 
   getUser(id, (user) => {
     if (!user) { return res.status(404).send('User not found') }
 
-    return res.send(user);
+    return res.send(user.getSafeUser());
   });
 
   /* try {
@@ -28,7 +34,7 @@ router.get('/:userId', authenticationRequired, (req: Request, res: Response) => 
   } */
 });
 
-router.get('/', authenticationRequired, async (req: Request, res: Response) => {
+router.get('/', async (req: Request, res: Response) => {
 
   const users = await getUsers();
 
@@ -50,7 +56,7 @@ router.post('/', async (req: Request, res: Response) => {
   // Appelle le controller
   const newUser = await createUser(firstname, lastname, email, password);
 
-  res.send(newUser);
+  res.send(newUser?.getSafeUser());
 });
 
 router.patch('/:userId', async (req: Request, res: Response) => {
@@ -67,7 +73,7 @@ router.patch('/:userId', async (req: Request, res: Response) => {
       firstname: firstname || user.firstname,
       lastname: lastname || user.lastname,
       email: email || user.email,
-      //password: password || user.password,
+      password: password || user.setPassword(password)
     }
   }, { new: true });
 
