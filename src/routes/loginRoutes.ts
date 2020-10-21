@@ -15,7 +15,7 @@ router.post('/', (req: Request, res: Response) => {                             
         if (user) { // enregistrement des infos dans la session
             req.logIn(user, err => {
                 if (err) return res.status(500).send();
-                return res.send(user); // renvoie un cookie (set-cookie) dans le header
+                return res.send(user.getSafeUser()); // renvoie un cookie (set-cookie) dans le header
             });
         } else {
             return res.status(404).send('User not found');
@@ -23,7 +23,7 @@ router.post('/', (req: Request, res: Response) => {                             
 
     }); // renvoie une fonction qui prend en paramètre req et res
 
-    authenticationFunction(req, res);
+    return authenticationFunction(req, res);
 });
 
 export default router;

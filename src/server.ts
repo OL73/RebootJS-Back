@@ -2,6 +2,7 @@ import { authenticationInitialize, authenticationSession } from './controllers/a
 import express, { Request, Response, ErrorRequestHandler } from 'express';
 import morgan from "morgan";
 import helmet from "helmet";
+import cors from 'cors';
 import { configuration, IConfig } from "./config";
 import { connect } from './database';
 import generalRouter from './routes/router';
@@ -9,7 +10,6 @@ import session from 'express-session';
 import mongoose from 'mongoose';
 import connect_mongo from 'connect-mongo';
 const MongoStore = connect_mongo(session);
-
 
 export function createExpressApp(config: IConfig): express.Express {
   const { express_debug, session_cookie_name, session_secret } = config;
@@ -21,12 +21,16 @@ export function createExpressApp(config: IConfig): express.Express {
   app.use(express.json());
 
   // cors
+  app.use(cors({
+    origin: true,
+    credentials: true
+  }));
   //app.use(express.urlencoded({ extended: true }));
-  app.use(function (req, res, next) {
+  /* app.use(function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     next();
-  });
+  }); */
 
   // session
   app.use(session({
