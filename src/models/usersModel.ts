@@ -43,14 +43,19 @@ export interface IUser extends Document {
   firstname: string;
   lastname: string;
   email: string;
+  conversationsSeen: {[convId: string]: Date};
+  socket?: string;
+  status: IUserStatus;
   /* status: () => string; */
   verifyPassword: (passport: string) => boolean;
   setPassword: (password: string) => void;
   getSafeUser: () => ISafeUser; // retourne un type de ISafeUser
 }
 
+type IUserStatus = 'online' | 'offline';
+
 // pour récupérer un sous-ensemble de IUser (récupère des infos qui nous intéressent)
-type ISafeUser = Pick<IUser, "firstname" | "lastname" | "email" | "_id">
+type ISafeUser = Pick<IUser, "firstname" | "lastname" | "email" | "_id" | "conversationsSeen" | "status">
 
 const userSchema = new Schema({
   firstname: {
@@ -72,6 +77,18 @@ const userSchema = new Schema({
   password: {
     type: String,
     required: true
+  },
+  socket: { 
+    type: String 
+  },
+  status: { 
+    type: String, 
+    required: true, 
+    default: 'offline'
+  },
+  conversationsSeen: { 
+    /* type: Map, 
+    of: Date  */
   }
 });
 
@@ -88,8 +105,8 @@ userSchema.methods.setPassword = function (password: string) {
 }
 
 userSchema.methods.getSafeUser = function () {
-  const { _id, firstname, lastname, email} = this;
-  return {_id, firstname, lastname, email};
+  const { _id, firstname, lastname, email, conversationsSeen, status} = this;
+  return {_id, firstname, lastname, email, conversationsSeen, status};
 }
 
 export const User = model<IUser, Model<IUser>>('User', userSchema);

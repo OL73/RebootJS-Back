@@ -4,6 +4,14 @@ import { UserNotFoundError } from '../controllers/errors/userNotFoundError';
 
 const router = Router();
 
+router.get('/logout', (req: Request, res: Response) => {
+
+    req.logOut();
+    req.session?.destroy((err) => {
+        res.redirect('/');
+    });
+});
+
 router.post('/', (req: Request, res: Response) => {                                 // on rentre dans Stategy.use
     const authenticationFunction = passport.authenticate('local', (err, user) => { // 'local' = propre authentification, pas via FB, google ou autre
         if (err) {

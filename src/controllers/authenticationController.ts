@@ -4,8 +4,8 @@ import { Strategy } from 'passport-local';
 import { UserNotFoundError } from './errors/userNotFoundError';
 
 passport.use( // statégie pour savoir si un user est bien connecté
-    new Strategy((username: string, password: string, done) => {
-        User.findOne({ email: username }, (err, user) => {
+    new Strategy((username: string, password: string, done) => { 
+        User.findOne({ email: username }, (err, user) => { // Attention pas de username dans User mais email à la place
             if (err) return done(err);
 
             if (user) {

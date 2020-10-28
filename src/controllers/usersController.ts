@@ -39,8 +39,17 @@ function getUsers(): any {
 
 }
 
+function updateConversationSeen(user: IUser, conversationId: string): Promise<IUser>{
+  user.conversationsSeen = {
+    ...user.conversationsSeen,
+    [conversationId]: new Date()
+  }
+  return user.save()
+}
+
 export {
   createUser,
   getUser,
-  getUsers
+  getUsers,
+  updateConversationSeen
 }
