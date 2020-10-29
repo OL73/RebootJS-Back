@@ -36,14 +36,27 @@ export function createExpressApp(config: IConfig): express.Express {
   }); */
 
   // session
-  app.use(session({
+  const sessionConfig = ({
     name: session_cookie_name,
     secret: session_secret,
     store: sessionStore, // Recup connexion from mongoose
     saveUninitialized: false,
-    resave: false
+    resave: false,
+    cookie: {}
   }));
 
+  // au lancement de git push heroku master, nodeJs 
+  if(process.env.NODE_ENV === 'production'){
+    app.set('trust proxy', 1);
+    sessionConfig.cookie = {
+      secure: true,
+      sameSite: 'none'
+    }
+  }
+
+  // appel de la session selon process.env
+  app.use(session(sessionConfig));
+  
   // on fait le lien entre passport(authentification) et la session
   app.use(authenticationInitialize());
   app.use(authenticationSession());
